@@ -40,10 +40,10 @@ export class StateProvider extends Component {
 
   dispatch = action => {
     if (typeof action === 'function') {
-      return action(this.reduce, () => this.state);
+      return action(this.dispatch, () => this.state);
     }
     if (typeof action === 'object' && typeof action.then === 'function') {
-      return action.then(this.reduce);
+      return action.then(this.dispatch);
     }
     return this.reduce(action);
   };
