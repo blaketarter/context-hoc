@@ -1,4 +1,4 @@
-import React, { Component, createElement } from 'react';
+import { Component, createElement } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEquals } from './utils';
 
@@ -20,73 +20,12 @@ import { shallowEquals } from './utils';
  * - [ ] release?
  */
 
-const StateContext = React.createContext();
-
-export class StateProvider extends Component {
-  static propTypes = {
-    initialState: PropTypes.object.isRequired,
-    reducer: PropTypes.func.isRequired,
-    ownProps: PropTypes.any,
-    // children: PropTypes.element.isRequired,
-  };
-
-  constructor({ initialState }) {
-    super();
-    this.state = initialState;
-  }
-
-  reduce = action =>
-    this.setState((state, props) => props.reducer(state, action));
-
-  dispatch = action => {
-    if (typeof action === 'function') {
-      return action(this.dispatch, () => this.state);
-    }
-    if (typeof action === 'object' && typeof action.then === 'function') {
-      return action.then(this.dispatch);
-    }
-    return this.reduce(action);
-  };
-
-  render() {
-    return (
-      <StateContext.Provider
-        value={{ dispatch: this.dispatch, state: this.state }}
-      >
-        {this.props.children(this.props.ownProps)}
-      </StateContext.Provider>
-    );
-  }
-}
-
-export class StateConsumer extends Component {
-  static propTypes = {
-    mapStateToProps: PropTypes.func.isRequired,
-    mapDispatchToProps: PropTypes.func.isRequired,
-    ownProps: PropTypes.any,
-    // children: PropTypes.element.isRequired,
-  };
-
-  render() {
-    return (
-      <StateContext.Consumer>
-        {({ state, dispatch }) =>
-          this.props.children(
-            this.props.mapStateToProps(state, this.props.ownProps),
-            this.props.mapDispatchToProps(dispatch, this.props.ownProps),
-          )
-        }
-      </StateContext.Consumer>
-    );
-  }
-}
-
 export class ConsumeRenderHelper extends Component {
   static propTypes = {
     ownProps: PropTypes.any,
     contextProps: PropTypes.any.isRequired,
     mappedDispatches: PropTypes.any,
-    // component: PropTypes.element.isRequired,
+    component: PropTypes.any.isRequired,
   };
 
   shouldComponentUpdate(nextProps) {

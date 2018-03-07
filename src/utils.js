@@ -42,3 +42,16 @@ export const shallowEquals = (a, b) => {
 
   return a === b;
 };
+
+export const getDisplayName = component =>
+  component.displayName || component.name || 'Component';
+
+export const omitProps = (blacklist = [], props = {}) => {
+  const ownProps = {};
+  for (let prop in props) {
+    if (props.hasOwnProperty(prop) && !blacklist.includes(prop)) {
+      ownProps[prop] = props[prop];
+    }
+  }
+  return ownProps;
+};
