@@ -1,9 +1,14 @@
-import React, { createElement } from 'react';
+import React from 'react';
 import hoistStatics from 'hoist-non-react-statics';
-import { ConsumeRenderHelper } from './components';
-import { getDisplayName } from './utils';
+import { ConsumeRenderHelper, ProvideRenderHelper } from './components';
+import {
+  getDisplayName,
+  runMapDispatchToPropsIfDefined,
+  runMapStateToPropsIfDefined,
+} from './utils';
 
 const StateContext = React.createContext();
+
 export function provide(initialState, reducer) {
   return function wrapComponentWithProvide(componentToWrap) {
     class ProvideHOC extends React.PureComponent {
@@ -28,7 +33,10 @@ export function provide(initialState, reducer) {
           <StateContext.Provider
             value={{ dispatch: this.dispatch, state: this.state }}
           >
-            {createElement(componentToWrap, this.props)}
+            <ProvideRenderHelper
+              ownProps={this.props}
+              component={componentToWrap}
+            />
           </StateContext.Provider>
         );
       }
@@ -49,8 +57,16 @@ export function consume(mapStateToProps, mapDispatchToProps) {
             {({ state, dispatch }) => (
               <ConsumeRenderHelper
                 ownProps={this.props}
-                contextProps={mapStateToProps(state, this.props)}
-                mappedDispatches={mapDispatchToProps(dispatch, this.props)}
+                contextProps={runMapStateToPropsIfDefined(
+                  mapStateToProps,
+                  state,
+                  this.props,
+                )}
+                mappedDispatches={runMapDispatchToPropsIfDefined(
+                  mapDispatchToProps,
+                  dispatch,
+                  this.props,
+                )}
                 component={componentToWrap}
               />
             )}

@@ -1,4 +1,4 @@
-import { Component, createElement } from 'react';
+import React, { createElement } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEquals } from './utils';
 
@@ -20,7 +20,17 @@ import { shallowEquals } from './utils';
  * - [ ] release?
  */
 
-export class ConsumeRenderHelper extends Component {
+export class ProvideRenderHelper extends React.PureComponent {
+  static propTypes = {
+    ownProps: PropTypes.any,
+    component: PropTypes.any.isRequired,
+  };
+  render() {
+    return createElement(this.props.component, this.props.ownProps);
+  }
+}
+
+export class ConsumeRenderHelper extends React.Component {
   static propTypes = {
     ownProps: PropTypes.any,
     contextProps: PropTypes.any.isRequired,

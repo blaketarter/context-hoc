@@ -1,3 +1,25 @@
+export const runMapStateToPropsIfDefined = (
+  mapStateToProps,
+  state,
+  ownProps,
+) => {
+  if (typeof mapStateToProps === 'function') {
+    return mapStateToProps(state, ownProps);
+  }
+  return {};
+};
+
+export const runMapDispatchToPropsIfDefined = (
+  mapDispatchToProps,
+  dispatch,
+  ownProps,
+) => {
+  if (typeof mapDispatchToProps === 'function') {
+    return mapDispatchToProps(dispatch, ownProps);
+  }
+  return {};
+};
+
 export const shallowEquals = (a, b) => {
   // different types means they are differnt
   if (typeof a !== typeof b) {
