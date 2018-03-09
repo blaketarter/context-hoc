@@ -10,16 +10,15 @@ import { provide } from 'context-hoc';
 // ...
 
 const initialState = { message: '' };
-const reducer = (state, action) => {
-  switch (action.type) {
-    case 'greeting':
-      return { message: action.payload };
-    default:
-      return state;
-  }
+
+const actions = {
+  greeting: message => getState => {
+    const state = getState();
+    return { ...state, message };
+  },
 };
 
-export default provide(initialState, reducer)(App);
+export default provide(initialState, actions)(App);
 ```
 
 ```js
@@ -32,9 +31,12 @@ const mapStateToProps = (state, ownProps) => {
     excitedMessage: `${state.message}!`,
   };
 };
-const mapDispatchToProps = (dispatch, ownProps) => ({
-  greet: payload => dispatch({ type: 'greeting', payload }),
-});
 
-export default consume(mapStateToProps, mapDispatchToProps)(Child);
+const mapActionsToProps = (actions, ownProps) => {
+  return {
+    greet: actions.greeting,
+  };
+};
+
+export default consume(mapStateToProps, mapActionsToProps)(Child);
 ```
