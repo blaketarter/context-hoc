@@ -34,7 +34,7 @@ export class ConsumeRenderHelper extends React.Component {
   static propTypes = {
     ownProps: PropTypes.any,
     contextProps: PropTypes.any.isRequired,
-    mappedDispatches: PropTypes.any,
+    mappedActions: PropTypes.any,
     component: PropTypes.any.isRequired,
   };
 
@@ -49,7 +49,7 @@ export class ConsumeRenderHelper extends React.Component {
     return createElement(this.props.component, {
       ...this.props.ownProps,
       ...this.props.contextProps,
-      ...this.props.mappedDispatches,
+      ...this.props.mappedActions,
     });
   }
 }
