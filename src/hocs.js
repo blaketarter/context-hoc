@@ -3,35 +3,34 @@ import hoistStatics from 'hoist-non-react-statics';
 import { ConsumeRenderHelper, ProvideRenderHelper } from './components';
 import {
   getDisplayName,
-  runMapDispatchToPropsIfDefined,
+  runMapActionsToPropsIfDefined,
   runMapStateToPropsIfDefined,
+  mapActionsWithDispatch,
 } from './utils';
 
 const StateContext = React.createContext();
 
-export function provide(initialState, reducer) {
+export function provide(initialState, actions) {
   return function wrapComponentWithProvide(componentToWrap) {
     class ProvideHOC extends React.PureComponent {
       static displayName = `ProvideHOC(${getDisplayName(componentToWrap)})`;
-
       state = initialState;
 
-      reduce = action => this.setState(state => reducer(state, action));
+      dispatch = (action, serializedAction) => {
+        console.log('serializedAction', serializedAction); // eslint-disable-line
+        const result = action(() => this.state, this.mappedActions);
+        if (typeof result === 'object' && typeof result.then === 'function') {
+          return result;
+        }
+        this.setState(result);
+      }
 
-      dispatch = action => {
-        if (typeof action === 'function') {
-          return action(this.dispatch, () => this.state);
-        }
-        if (typeof action === 'object' && typeof action.then === 'function') {
-          return action.then(this.dispatch);
-        }
-        return this.reduce(action);
-      };
+      mappedActions = mapActionsWithDispatch(actions, this.dispatch)
 
       render() {
         return (
           <StateContext.Provider
-            value={{ dispatch: this.dispatch, state: this.state }}
+            value={{ mappedActions: this.mappedActions, state: this.state }}
           >
             <ProvideRenderHelper
               ownProps={this.props}
@@ -46,7 +45,7 @@ export function provide(initialState, reducer) {
   };
 }
 
-export function consume(mapStateToProps, mapDispatchToProps) {
+export function consume(mapStateToProps, mapActionsToProps) {
   return function wrapComponentWithConsume(componentToWrap) {
     class ConsumeHOC extends React.PureComponent {
       static displayName = `ConsumeHOC(${getDisplayName(componentToWrap)})`;
@@ -54,7 +53,7 @@ export function consume(mapStateToProps, mapDispatchToProps) {
       render() {
         return (
           <StateContext.Consumer>
-            {({ state, dispatch }) => (
+            {({ state, mappedActions }) => (
               <ConsumeRenderHelper
                 ownProps={this.props}
                 contextProps={runMapStateToPropsIfDefined(
@@ -62,9 +61,9 @@ export function consume(mapStateToProps, mapDispatchToProps) {
                   state,
                   this.props,
                 )}
-                mappedDispatches={runMapDispatchToPropsIfDefined(
-                  mapDispatchToProps,
-                  dispatch,
+                mappedActions={runMapActionsToPropsIfDefined(
+                  mapActionsToProps,
+                  mappedActions,
                   this.props,
                 )}
                 component={componentToWrap}

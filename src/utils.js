@@ -9,19 +9,29 @@ export const runMapStateToPropsIfDefined = (
   return {};
 };
 
-export const runMapDispatchToPropsIfDefined = (
-  mapDispatchToProps,
+export const runMapActionsToPropsIfDefined = (
+  mapActionsToProps,
   dispatch,
   ownProps,
 ) => {
-  if (typeof mapDispatchToProps === 'function') {
-    return mapDispatchToProps(dispatch, ownProps);
+  if (typeof mapActionsToProps === 'function') {
+    return mapActionsToProps(dispatch, ownProps);
   }
   return {};
 };
 
+export const mapActionsWithDispatch = (actions, dispatch) => {
+  return Object.keys(actions).reduce((mappedActions, type) => {
+    const action = actions[type];
+    mappedActions[type] = payload => {
+      return dispatch(action(payload), { type, payload });
+    };
+    return mappedActions;
+  }, {});
+};
+
 export const shallowEquals = (a, b) => {
-  // different types means they are differnt
+  // different types means they are different
   if (typeof a !== typeof b) {
     return false;
   }
